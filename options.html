@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <title>Pomodoro Timer: stats and settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <h1>Pomodoro Timer</h1>
+
+    <section>
+      <h2>Stats</h2>
+      <div class="cards">
+        <div class="card"><span class="label">Today</span><strong id="stat-today">0</strong><span id="stat-today-time">0m</span></div>
+        <div class="card"><span class="label">Last 7 days</span><strong id="stat-week">0</strong><span id="stat-week-time">0m</span></div>
+        <div class="card"><span class="label">All time</span><strong id="stat-all">0</strong><span id="stat-all-time">0m</span></div>
+      </div>
+      <div class="chart" id="chart" aria-label="Focus sessions per day, last 7 days"></div>
+    </section>
+
+    <section>
+      <h2>Timer</h2>
+      <div class="grid">
+        <label>Focus <span class="unit"><input type="number" data-key="focus" min="1" max="180"> min</span></label>
+        <label>Short break <span class="unit"><input type="number" data-key="short" min="1" max="60"> min</span></label>
+        <label>Long break <span class="unit"><input type="number" data-key="long" min="1" max="120"> min</span></label>
+        <label>Long break after <span class="unit"><input type="number" data-key="longEvery" min="2" max="12"> sessions</span></label>
+      </div>
+      <label class="check"><input type="checkbox" data-key="autoBreak"> Start breaks automatically</label>
+      <label class="check"><input type="checkbox" data-key="autoFocus"> Start focus sessions automatically after a break</label>
+    </section>
+
+    <section>
+      <h2>Alerts</h2>
+      <label class="check"><input type="checkbox" data-key="notify"> Show a notification when a session ends</label>
+      <label class="check"><input type="checkbox" data-key="sound"> Play a sound when a session ends</label>
+      <button id="test-sound" class="secondary">Play test sound</button>
+    </section>
+
+    <section>
+      <h2>Site blocking</h2>
+      <label class="check"><input type="checkbox" data-key="blockEnabled"> Block these sites during focus sessions</label>
+      <form id="add-site">
+        <input type="text" id="site" placeholder="example.com" autocomplete="off" spellcheck="false">
+        <button class="secondary">Add</button>
+      </form>
+      <p id="site-error" class="error" hidden>Enter a domain such as example.com</p>
+      <ul id="sites"></ul>
+    </section>
+
+    <p class="note">Shortcut: Alt+Shift+P starts or pauses the timer. Change it at chrome://extensions/shortcuts</p>
+  </main>
+  <script type="module" src="options.js"></script>
+</body>
+</html>

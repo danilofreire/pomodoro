@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <title>Pomodoro Timer</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body data-phase="focus">
+  <nav class="phases" aria-label="Phase">
+    <button data-phase="focus">Focus</button>
+    <button data-phase="short">Short break</button>
+    <button data-phase="long">Long break</button>
+  </nav>
+
+  <div class="dial">
+    <svg viewBox="0 0 200 200" aria-hidden="true">
+      <circle class="track" cx="100" cy="100" r="88"/>
+      <circle class="progress" id="ring" cx="100" cy="100" r="88"/>
+    </svg>
+    <div class="readout">
+      <div id="time">25:00</div>
+      <div id="hint">Ready</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="reset" class="round" title="Reset" aria-label="Reset">
+      <svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.5h4.5"/></svg>
+    </button>
+    <button id="toggle" class="primary">Start</button>
+    <button id="skip" class="round" title="Skip to the next phase" aria-label="Skip">
+      <svg viewBox="0 0 24 24"><path d="M6 5l9 7-9 7zM18 5v14"/></svg>
+    </button>
+  </div>
+
+  <div class="cycle" id="dots" title="Focus sessions until the long break"></div>
+
+  <footer>
+    <span id="today"></span>
+    <button id="options" class="link">Stats and settings</button>
+  </footer>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
