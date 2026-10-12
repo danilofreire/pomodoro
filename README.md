@@ -3,8 +3,9 @@
 A Chrome extension with a pomodoro timer, automatic breaks, daily stats and site blocking.
 
 <p>
-  <img src="screenshots/popup.png" alt="The timer popup during a focus session" width="260">
-  <img src="screenshots/options.png" alt="The stats and settings page" width="340">
+  <img src="screenshots/popup-light.png" alt="The timer popup in light mode" width="230">
+  <img src="screenshots/popup.png" alt="The timer popup in dark mode" width="230">
+  <img src="screenshots/options.png" alt="The stats and settings page" width="310">
 </p>
 
 ## Install
