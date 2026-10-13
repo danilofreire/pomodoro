@@ -33,22 +33,73 @@ main {
   padding: 32px 20px 48px;
 }
 
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 20px;
+}
+
 h1 {
-  margin: 0 0 20px;
+  margin: 0;
   font-size: 22px;
 }
 
+#toggle-all {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-size: 13px;
+}
+
+#toggle-all:hover { color: var(--text); }
+
 h2 {
-  margin: 0 0 14px;
+  margin: 0;
   font-size: 15px;
 }
 
-section {
+details {
   margin-bottom: 16px;
   padding: 18px 20px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px;
+}
+
+/* The box title is the button that minimises or expands the box */
+summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  list-style: none;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+summary::-webkit-details-marker { display: none; }
+
+summary::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(-135deg);
+  transition: transform 0.15s;
+}
+
+details:not([open]) summary::after { transform: rotate(45deg); }
+
+details[open] summary { margin-bottom: 14px; }
+
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
 }
 
 .cards {

@@ -1,6 +1,30 @@
 import { DEFAULTS, getSettings, getStats, dayKey, fmtMinutes } from './shared.js';
 
 const $ = (id) => document.getElementById(id);
+
+// Remember which boxes are minimised.
+const boxes = [...document.querySelectorAll('details')];
+const minimised = new Set(JSON.parse(localStorage.getItem('minimised') || '[]'));
+const allMinimised = () => boxes.every((box) => !box.open);
+const labelToggleAll = () => {
+  $('toggle-all').textContent = allMinimised() ? 'Expand all' : 'Minimise all';
+};
+for (const box of boxes) {
+  box.open = !minimised.has(box.id);
+  box.addEventListener('toggle', () => {
+    if (box.open) minimised.delete(box.id);
+    else minimised.add(box.id);
+    localStorage.setItem('minimised', JSON.stringify([...minimised]));
+    labelToggleAll();
+  });
+}
+labelToggleAll();
+
+$('toggle-all').addEventListener('click', () => {
+  const open = allMinimised();
+  for (const box of boxes) box.open = open;
+});
+
 const settings = await getSettings();
 const save = () => chrome.storage.local.set({ settings });
 

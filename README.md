@@ -83,7 +83,7 @@ Click "Stats and settings" at the bottom of the popup. There you can:
 - Choose whether breaks and focus sessions start automatically
 - Turn the notice and the sound on or off
 
-Changes save as soon as you make them.
+Changes save as soon as you make them. Click a box's title to minimise or expand it, or use "Minimise all" at the top. The page remembers your choice.
 
 ### Block distracting sites
 
