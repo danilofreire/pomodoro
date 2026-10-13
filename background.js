@@ -70,6 +70,16 @@ async function advance(state, completed) {
   }
 }
 
+// A phase that ends this late means the computer slept or Chrome was closed.
+const LATE_MS = 2 * 60000;
+
+async function finish(state) {
+  if (Date.now() - state.endTime <= LATE_MS) return advance(state, true);
+  // Nobody was at the keyboard: do not count the session, and wait at a fresh focus phase.
+  const done = state.phase === 'long' ? 0 : state.done;
+  await commit(fresh('focus', await getSettings(), done));
+}
+
 async function recordSession(ms) {
   const stats = await getStats();
   const key = dayKey();
@@ -167,7 +177,7 @@ chrome.alarms.onAlarm.addListener(() => serial(async () => {
   const state = await getState();
   if (state.status !== 'running') return;
   if (state.endTime - Date.now() > 500) return updateBadge(state);
-  await advance(state, true);
+  await finish(state);
 }));
 
 chrome.commands.onCommand.addListener((command) => {
@@ -195,7 +205,7 @@ chrome.storage.onChanged.addListener((changes) => {
 // After a browser restart or an update, catch up with the stored state.
 const restore = () => serial(async () => {
   const state = await getState();
-  if (state.status === 'running' && state.endTime <= Date.now()) await advance(state, true);
+  if (state.status === 'running' && state.endTime <= Date.now()) await finish(state);
   else await sync(state);
 });
 chrome.runtime.onStartup.addListener(restore);

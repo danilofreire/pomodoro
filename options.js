@@ -88,6 +88,17 @@ async function renderStats() {
   }));
 }
 
+// Download every recorded day as a CSV file, oldest first.
+$('export').addEventListener('click', async () => {
+  const stats = await getStats();
+  const rows = Object.keys(stats).sort().map((day) => `${day},${stats[day].count},${stats[day].minutes}`);
+  const csv = ['date,sessions,minutes', ...rows].join('\n') + '\n';
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  link.download = `pomodoro-stats-${dayKey()}.csv`;
+  link.click();
+});
+
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.stats) renderStats();
 });

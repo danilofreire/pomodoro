@@ -166,6 +166,8 @@ button {
 
 .secondary:hover { border-color: var(--muted); }
 
+#export { margin-top: 16px; }
+
 #add-site {
   display: flex;
   gap: 8px;

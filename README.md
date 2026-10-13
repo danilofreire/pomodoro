@@ -14,7 +14,7 @@ A Chrome extension with a pomodoro timer, automatic breaks, daily stats and site
 - A long break after every 4 focus sessions
 - Minutes left on the toolbar icon
 - Notification and chime when a session ends
-- Sessions per day, with a 7-day chart
+- Sessions per day, with a 7-day chart and CSV export
 - Optional blocking of chosen sites during focus sessions
 - Light and dark mode, following your system theme
 - `Alt+Shift+P` starts or pauses the timer
@@ -67,11 +67,14 @@ Click the tomato icon to open the timer.
 
 When a focus session ends, you get a notification and a chime, and the break starts by itself. After the break, the timer waits for you to start the next focus session.
 
+If your computer sleeps or Chrome is closed past the end of a session, that session is not counted. The timer waits at a new focus session.
+
 ### Settings and stats
 
 Click "Stats and settings" at the bottom of the popup. There you can:
 
 - See your sessions for today, the last 7 days and all time
+- Click "Export CSV" to save every recorded day as a file (date, sessions, minutes)
 - Change the length of each phase and the number of sessions before a long break
 - Choose whether breaks and focus sessions start automatically
 - Turn the notification and the sound on or off
@@ -95,7 +98,7 @@ Your settings and stats are kept, as long as the folder stays in the same place.
 
 ## Uninstall
 
-Open `chrome://extensions`, click "Remove" on the "Pomodoro Timer" card, then delete the folder. This also deletes your settings and stats.
+Open `chrome://extensions`, click "Remove" on the "Pomodoro Timer" card, then delete the folder. This also deletes your settings and stats, so export the stats first if you want to keep them.
 
 ## Troubleshooting
 
