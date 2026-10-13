@@ -25,9 +25,9 @@ The extension is not on the Chrome Web Store, so you load it from a folder on yo
 
 ### 1. Download the code
 
-1. Click the green "Code" button at the top of this page, then "Download ZIP". You can also use the [direct link](https://github.com/danilofreire/pomodoro/archive/refs/heads/main.zip)
+1. Open the [latest release](https://github.com/danilofreire/pomodoro/releases/latest) and click "Source code (zip)"
 2. Extract the ZIP file. On macOS, double-click it. On Windows, right-click it and choose "Extract All"
-3. You now have a folder called `pomodoro-main`. Move it somewhere it can stay, such as `Documents`
+3. You now have a folder named `pomodoro-` plus the version number, such as `pomodoro-1.0.0`. Move it somewhere it can stay, such as `Documents`
 
 Chrome runs the extension from this folder. If you move or delete the folder later, the extension stops working.
 
@@ -42,7 +42,7 @@ git clone https://github.com/danilofreire/pomodoro.git
 1. Type `chrome://extensions` in the address bar and press Enter
 2. Turn on "Developer mode" (the switch in the top right corner)
 3. Click "Load unpacked"
-4. Select the `pomodoro-main` folder (the one that contains `manifest.json`) and confirm
+4. Select the folder you extracted (the one that contains `manifest.json`) and confirm
 
 "Pomodoro Timer" now appears in your list of extensions.
 
@@ -91,7 +91,7 @@ During a focus session, these sites show a countdown page. They reopen by themse
 
 ## Update
 
-1. Download the ZIP again and replace the contents of your folder (or run `git pull` if you cloned it)
+1. Download the ZIP file of the newest version from the [releases page](https://github.com/danilofreire/pomodoro/releases/latest), extract it, and copy its contents over the files in your existing folder (or run `git pull` if you cloned it)
 2. Open `chrome://extensions` and click the reload arrow on the "Pomodoro Timer" card
 
 Your settings and stats are kept, as long as the folder stays in the same place.
@@ -104,7 +104,7 @@ Open `chrome://extensions`, click "Remove" on the "Pomodoro Timer" card, then de
 
 | Problem | Fix |
 |---------|-----|
-| "Manifest file is missing or unreadable" | You selected the wrong folder. Pick the one that contains `manifest.json`. Some unzip tools create a second `pomodoro-main` folder inside the first |
+| "Manifest file is missing or unreadable" | You selected the wrong folder. Pick the one that contains `manifest.json`. Some unzip tools create a second folder with the same name inside the first |
 | No notification when a session ends | Allow notifications for Chrome in your system settings. On macOS: System Settings, Notifications, Google Chrome |
 | No sound | Check that "Play a sound when a session ends" is ticked, then click "Play test sound" |
 | A blocked site still opens | Blocking is active only during a focus session, and only if the tick box in settings is on |
