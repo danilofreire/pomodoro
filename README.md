@@ -13,7 +13,7 @@ A Chrome extension with a pomodoro timer, automatic breaks, daily stats and site
 - Focus, short break and long break phases (25, 5 and 15 minutes by default)
 - A long break after every 4 focus sessions
 - Minutes left on the toolbar icon
-- Notification and chime when a session ends
+- A notice with a start button and a chime when a session ends
 - Sessions per day, with a 7-day chart and CSV export
 - Optional blocking of chosen sites during focus sessions
 - Light and dark mode, following your system theme
@@ -65,7 +65,11 @@ Click the tomato icon to open the timer.
 - The tabs at the top switch between focus, short break and long break
 - The dots show how many focus sessions you have done before the next long break
 
-When a focus session ends, you get a notification and a chime, and the break starts by itself. After the break, the timer waits for you to start the next focus session.
+Nothing starts without you. When a focus session ends, you hear a chime and a small notice appears in the top right corner of the page you are on. It tells you how many minutes have passed. Click "Start break" to begin the break, or "Not now" to hide the notice and start later from the popup. The same notice appears when a break ends, with a "Start focus" button.
+
+While the timer waits for you, the toolbar icon shows "!". You also get a system notification, which helps when Chrome is not the window in front. Clicking it starts the next phase.
+
+If you prefer breaks or focus sessions to start by themselves, tick the two "automatically" boxes in the settings.
 
 If your computer sleeps or Chrome is closed past the end of a session, that session is not counted. The timer waits at a new focus session.
 
@@ -77,7 +81,7 @@ Click "Stats and settings" at the bottom of the popup. There you can:
 - Click "Export CSV" to save every recorded day as a file (date, sessions, minutes)
 - Change the length of each phase and the number of sessions before a long break
 - Choose whether breaks and focus sessions start automatically
-- Turn the notification and the sound on or off
+- Turn the notice and the sound on or off
 
 Changes save as soon as you make them.
 
@@ -105,7 +109,8 @@ Open `chrome://extensions`, click "Remove" on the "Pomodoro Timer" card, then de
 | Problem | Fix |
 |---------|-----|
 | "Manifest file is missing or unreadable" | You selected the wrong folder. Pick the one that contains `manifest.json`. Some unzip tools create a second folder with the same name inside the first |
-| No notification when a session ends | Allow notifications for Chrome in your system settings. On macOS: System Settings, Notifications, Google Chrome |
+| No system notification | Allow notifications for Chrome in your system settings. On macOS: System Settings, Notifications, Google Chrome |
+| No notice in the corner of the page | Chrome does not allow it on its own pages, such as a new tab or `chrome://extensions`. Use the popup or the system notification there |
 | No sound | Check that "Play a sound when a session ends" is ticked, then click "Play test sound" |
 | A blocked site still opens | Blocking is active only during a focus session, and only if the tick box in settings is on |
 | The shortcut does nothing | Another extension may use it. Set a new one at `chrome://extensions/shortcuts` |
@@ -115,7 +120,7 @@ Open `chrome://extensions`, click "Remove" on the "Pomodoro Timer" card, then de
 
 Your settings and stats stay in your browser. The extension sends nothing over the internet.
 
-Chrome lists the permission "Read and change all your data on all websites". Site blocking needs it to redirect the sites on your list. The extension checks tab addresses against that list and does not read page content.
+Chrome lists the permission "Read and change all your data on all websites". The extension uses it for two things: site blocking redirects the sites on your list, and the end-of-session notice is drawn in the corner of the page you are on. It checks tab addresses against your list and does not read page content.
 
 ## Files
 

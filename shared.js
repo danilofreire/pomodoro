@@ -5,7 +5,7 @@ export const DEFAULTS = {
   short: 5,
   long: 15,
   longEvery: 4, // focus sessions before a long break
-  autoBreak: true,
+  autoBreak: false,
   autoFocus: false,
   sound: true,
   notify: true,

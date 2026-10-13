@@ -34,6 +34,7 @@ async function sync(state) {
     // Fires each time the minute shown on the badge changes.
     chrome.alarms.create('tick', { when: Date.now() + (rem % 60000 || 60000), periodInMinutes: 1 });
   }
+  if (!state.waiting) chrome.notifications.clear('pomodoro');
   await updateBadge(state);
   await updateBlocking(state, await getSettings());
 }
@@ -42,6 +43,7 @@ async function updateBadge(state) {
   let text = '';
   if (state.status === 'running') text = String(Math.ceil(remainingMs(state) / 60000));
   if (state.status === 'paused') text = 'II';
+  if (state.waiting) text = '!';
   await chrome.action.setBadgeText({ text });
   await chrome.action.setBadgeBackgroundColor({ color: PHASES[state.phase].colour });
   await chrome.action.setBadgeTextColor({ color: '#ffffff' });
@@ -63,10 +65,14 @@ async function advance(state, completed) {
     done = 0;
   }
   const auto = next === 'focus' ? settings.autoFocus : settings.autoBreak;
-  await commit(fresh(next, settings, done, auto));
+  const nextState = fresh(next, settings, done, auto);
+  // `waiting` marks a finished phase whose successor needs the user's go-ahead.
+  if (completed && !auto) nextState.waiting = { finished: state.phase, minutes: Math.round(state.total / 60000) };
+  await commit(nextState);
   if (completed) {
-    if (settings.notify) notify(state.phase, next, settings, auto);
+    if (settings.notify) notify(nextState, settings);
     if (settings.sound) chime(state.phase);
+    toast(nextState);
   }
 }
 
@@ -88,17 +94,105 @@ async function recordSession(ms) {
   await chrome.storage.local.set({ stats });
 }
 
-function notify(finished, next, settings, auto) {
-  const breakLabel = `${settings[next]}-minute ${next === 'long' ? 'long ' : ''}break`;
-  const options = {
-    type: 'basic',
-    iconUrl: 'icons/icon128.png',
-    title: finished === 'focus' ? 'Focus session done' : 'Break over',
-    message: finished === 'focus' ? `Time for a ${breakLabel}.` : 'Ready for another focus session?',
-    priority: 2,
-  };
-  if (!auto) options.buttons = [{ title: next === 'focus' ? 'Start focus' : 'Start break' }];
+// Wording for the notice shown when a phase ends and the next one waits.
+function noticeText(state) {
+  const { finished, minutes } = state.waiting;
+  const next = Math.round(state.total / 60000);
+  const passed = `${minutes} ${minutes === 1 ? 'minute has' : 'minutes have'} passed.`;
+  if (finished !== 'focus') {
+    return { title: 'Break over', message: `${passed} Ready for another focus session?`, button: 'Start focus' };
+  }
+  const kind = state.phase === 'long' ? 'long break' : 'break';
+  return { title: 'Focus session done', message: `${passed} Time for a ${next}-minute ${kind}.`, button: `Start ${kind}` };
+}
+
+function notify(state, settings) {
+  const options = { type: 'basic', iconUrl: 'icons/icon128.png', priority: 2 };
+  if (state.waiting) {
+    const text = noticeText(state);
+    Object.assign(options, {
+      title: text.title,
+      message: `${text.message} Click to start.`,
+      buttons: [{ title: text.button }],
+      requireInteraction: true,
+    });
+  } else {
+    // The next phase has already started by itself.
+    const onBreak = state.phase !== 'focus';
+    options.title = onBreak ? 'Focus session done' : 'Break over';
+    options.message = onBreak
+      ? `Your ${settings[state.phase]}-minute ${state.phase === 'long' ? 'long ' : ''}break has started.`
+      : 'Your focus session has started.';
+  }
   chrome.notifications.clear('pomodoro', () => chrome.notifications.create('pomodoro', options));
+}
+
+// Runs inside the web page, so it cannot use anything defined outside itself.
+// Adds a small card in the top right corner with a button to start the next phase.
+function showToast(text, colour) {
+  if (document.getElementById('pomodoro-toast')) return;
+  const host = document.createElement('div');
+  host.id = 'pomodoro-toast';
+  const root = host.attachShadow({ mode: 'open' });
+  const sheet = new CSSStyleSheet();
+  sheet.replaceSync(`
+    :host { all: initial; position: fixed; top: 16px; right: 16px; z-index: 2147483647; }
+    .card {
+      width: 280px; padding: 14px 16px; border-radius: 12px; box-sizing: border-box;
+      background: #ffffff; color: #2a2623; border: 1px solid #ebe4de;
+      box-shadow: 0 6px 24px rgb(0 0 0 / 0.18);
+      font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    strong { display: block; font-size: 14px; }
+    span { color: #857c75; }
+    .row { display: flex; gap: 8px; margin-top: 12px; }
+    button { flex: 1; padding: 7px 0; border-radius: 999px; font: inherit; cursor: pointer;
+      background: transparent; color: inherit; border: 1px solid #ebe4de; }
+    .start { background: ${colour}; border-color: ${colour}; color: #ffffff; font-weight: 600; }
+    @media (prefers-color-scheme: dark) {
+      .card { background: #2a2726; color: #f3eeea; border-color: #3a3634; }
+      span { color: #a39a93; }
+      button { border-color: #3a3634; }
+    }
+  `);
+  root.adoptedStyleSheets = [sheet];
+
+  const el = (tag, content, className) => {
+    const node = document.createElement(tag);
+    node.textContent = content;
+    if (className) node.className = className;
+    return node;
+  };
+  const card = el('div', '', 'card');
+  const row = el('div', '', 'row');
+  const later = el('button', 'Not now');
+  const start = el('button', text.button, 'start');
+  row.append(later, start);
+  card.append(el('strong', text.title), el('span', text.message), row);
+  root.append(card);
+  document.documentElement.append(host);
+
+  start.addEventListener('click', () => chrome.runtime.sendMessage({ cmd: 'start' }));
+  later.addEventListener('click', () => chrome.runtime.sendMessage({ cmd: 'dismiss' }));
+  // Disappear once the timer is started or the notice dismissed, from any tab.
+  chrome.storage.onChanged.addListener((changes) => {
+    if (changes.state && !changes.state.newValue?.waiting) host.remove();
+  });
+}
+
+// Show the card in the tab the user is looking at. Chrome's own pages refuse it.
+async function toast(state, tabId) {
+  if (!state.waiting || !(await getSettings()).notify) return;
+  if (tabId === undefined) {
+    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    tabId = tab?.id;
+  }
+  if (tabId === undefined) return;
+  chrome.scripting.executeScript({
+    target: { tabId },
+    func: showToast,
+    args: [noticeText(state), PHASES[state.phase].colour],
+  }).catch(() => {});
 }
 
 // Service workers cannot play audio, so a short-lived offscreen page does it.
@@ -139,7 +233,7 @@ const actions = {
   async start() {
     const state = await getState();
     if (state.status === 'running') return;
-    await commit({ ...state, status: 'running', endTime: Date.now() + state.remaining });
+    await commit({ ...state, waiting: null, status: 'running', endTime: Date.now() + state.remaining });
   },
   async pause() {
     const state = await getState();
@@ -161,6 +255,9 @@ const actions = {
     if (!PHASES[phase]) return;
     const state = await getState();
     await commit(fresh(phase, await getSettings(), state.done));
+  },
+  async dismiss() {
+    await commit({ ...(await getState()), waiting: null });
   },
   async testSound() {
     await chime('focus');
@@ -184,13 +281,22 @@ chrome.commands.onCommand.addListener((command) => {
   if (command === 'toggle-timer') serial(actions.toggle);
 });
 
-chrome.notifications.onButtonClicked.addListener((id) => {
+// Clicking the notification or its button starts the phase that is waiting.
+const startFromNotification = (id) => {
   if (id !== 'pomodoro') return;
   chrome.notifications.clear(id);
-  serial(actions.start);
-});
+  serial(async () => {
+    if ((await getState()).waiting) await actions.start();
+  });
+};
+chrome.notifications.onClicked.addListener(startFromNotification);
+chrome.notifications.onButtonClicked.addListener(startFromNotification);
 
-chrome.notifications.onClicked.addListener((id) => chrome.notifications.clear(id));
+// Keep the card in view when the user switches tab or loads another page.
+chrome.tabs.onActivated.addListener(({ tabId }) => serial(async () => toast(await getState(), tabId)));
+chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
+  if (info.status === 'complete' && tab.active) serial(async () => toast(await getState(), tabId));
+});
 
 // New durations apply at once to a timer that has not started.
 chrome.storage.onChanged.addListener((changes) => {
