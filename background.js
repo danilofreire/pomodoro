@@ -81,9 +81,17 @@ const LATE_MS = 2 * 60000;
 
 async function finish(state) {
   if (Date.now() - state.endTime <= LATE_MS) return advance(state, true);
-  // Nobody was at the keyboard: do not count the session, and wait at a fresh focus phase.
+  // Nobody was at the keyboard: wait at a fresh focus phase, whatever the settings say.
+  const settings = await getSettings();
   const done = state.phase === 'long' ? 0 : state.done;
-  await commit(fresh('focus', await getSettings(), done));
+  const next = fresh('focus', settings, done);
+  // A late focus session is not counted. A late break still ends with the usual notice.
+  if (state.phase !== 'focus') next.waiting = { finished: state.phase, late: true };
+  await commit(next);
+  if (next.waiting) {
+    if (settings.notify) notify(next, settings);
+    toast(next);
+  }
 }
 
 async function recordSession(ms) {
@@ -96,9 +104,11 @@ async function recordSession(ms) {
 
 // Wording for the notice shown when a phase ends and the next one waits.
 function noticeText(state) {
-  const { finished, minutes } = state.waiting;
+  const { finished, minutes, late } = state.waiting;
   const next = Math.round(state.total / 60000);
-  const passed = `${minutes} ${minutes === 1 ? 'minute has' : 'minutes have'} passed.`;
+  const passed = late
+    ? 'Your break ended a while ago.'
+    : `${minutes} ${minutes === 1 ? 'minute has' : 'minutes have'} passed.`;
   if (finished !== 'focus') {
     return { title: 'Break over', message: `${passed} Ready for another focus session?`, button: 'Start focus' };
   }
@@ -252,8 +262,9 @@ const actions = {
     await advance(await getState(), false);
   },
   async setPhase({ phase }) {
-    if (!PHASES[phase]) return;
     const state = await getState();
+    // Switching would throw away a running timer, so it needs a pause first.
+    if (!PHASES[phase] || phase === state.phase || state.status === 'running') return;
     await commit(fresh(phase, await getSettings(), state.done));
   },
   async dismiss() {
@@ -296,6 +307,9 @@ chrome.notifications.onButtonClicked.addListener(startFromNotification);
 chrome.tabs.onActivated.addListener(({ tabId }) => serial(async () => toast(await getState(), tabId)));
 chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
   if (info.status === 'complete' && tab.active) serial(async () => toast(await getState(), tabId));
+});
+chrome.windows.onFocusChanged.addListener((windowId) => {
+  if (windowId !== chrome.windows.WINDOW_ID_NONE) serial(async () => toast(await getState()));
 });
 
 // New durations apply at once to a timer that has not started.

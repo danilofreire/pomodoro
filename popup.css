@@ -66,6 +66,10 @@ button:focus-visible {
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
 }
 
+.phases button:disabled { cursor: default; }
+
+.phases button:disabled:not([aria-pressed="true"]) { opacity: 0.45; }
+
 .dial {
   position: relative;
   width: 216px;

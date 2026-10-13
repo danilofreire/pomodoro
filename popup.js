@@ -32,6 +32,9 @@ function render() {
 
   for (const btn of document.querySelectorAll('.phases button')) {
     btn.setAttribute('aria-pressed', btn.dataset.phase === state.phase);
+    // Switching phase would discard a running timer, so pause first.
+    btn.disabled = state.status === 'running';
+    btn.title = btn.disabled ? 'Pause the timer to switch phase' : '';
   }
 
   const dots = $('dots');

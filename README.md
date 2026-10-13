@@ -62,7 +62,7 @@ Click the tomato icon to open the timer.
 - "Start" begins a focus session. The button then becomes "Pause"
 - The circular arrow resets the current phase
 - The arrow on the right skips to the next phase. Skipped sessions do not count in your stats
-- The tabs at the top switch between focus, short break and long break
+- The tabs at the top switch between focus, short break and long break. They are locked while the timer runs, so pause first
 - The dots show how many focus sessions you have done before the next long break
 
 Nothing starts without you. When a focus session ends, you hear a chime and a small notice appears in the top right corner of the page you are on. It tells you how many minutes have passed. Click "Start break" to begin the break, or "Not now" to hide the notice and start later from the popup. The same notice appears when a break ends, with a "Start focus" button.
@@ -71,7 +71,7 @@ While the timer waits for you, the toolbar icon shows "!". You also get a system
 
 If you prefer breaks or focus sessions to start by themselves, tick the two "automatically" boxes in the settings.
 
-If your computer sleeps or Chrome is closed past the end of a session, that session is not counted. The timer waits at a new focus session.
+If your computer sleeps or Chrome is closed past the end of a focus session, that session is not counted. The timer waits at a new focus session. A break that ends this way still shows the "Break over" notice when you come back.
 
 ### Settings and stats
 
